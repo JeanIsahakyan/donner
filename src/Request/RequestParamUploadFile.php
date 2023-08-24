@@ -26,10 +26,10 @@ class RequestParamUploadFile {
     self::FIELD_SIZE,
   ];
 
-  private mixed $value;
+  private ?array $value;
   private string $param;
 
-  public function __construct(string $param, ?string $value) {
+  public function __construct(string $param, ?array $value) {
     $this->param = $param;
     $this->value = $value;
   }
