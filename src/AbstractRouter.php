@@ -1,12 +1,12 @@
 <?php
 namespace Donner;
 
+use Donner\Response\ResponseInterface;
 use Donner\Utils\HTTPCode;
 use Donner\Controller\AbstractController;
 use Donner\Controller\ControllerInterface;
 use Donner\Controller\NotFoundController;
-use Donner\Result\ControllerException;
-use Donner\Result\ControllerResponse;
+use Donner\Exception\DonnerException;
 
 /**
  * Class AbstractRouter
@@ -61,9 +61,9 @@ abstract class AbstractRouter implements RouterInterface {
   /**
    * @param AbstractController[] $controllers
    *
-   * @return ControllerResponse|null
+   * @return ?ResponseInterface
    */
-  private function tryInvokeController(array $controllers): ?ControllerResponse {
+  private function tryInvokeController(array $controllers): ?ResponseInterface {
     $uri    = $this->getUri();
     foreach ($controllers as $pattern => $controller) {
       if (!preg_match_all('#^' .$pattern. '$#', $uri, $matches, PREG_OFFSET_CAPTURE)) {
@@ -76,15 +76,17 @@ abstract class AbstractRouter implements RouterInterface {
         }
         return isset($match[0][0]) ? trim($match[0][0], '/') : null;
       }, $matches, array_keys($matches));
-      return $controller->resolve($params);
+      return $controller
+        ->setParams($params)
+        ->resolve();
     }
     return null;
   }
 
   /**
-   * @throws ControllerException
+   * @throws DonnerException
    */
-  protected final function tryRun(): ControllerResponse {
+  protected final function tryRun(): ResponseInterface {
     $method = $this->getMethod();
     if (!array_key_exists($method, $this->controllers)) {
       $method = ControllerInterface::METHOD_ALL;

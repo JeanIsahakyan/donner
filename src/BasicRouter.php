@@ -1,7 +1,7 @@
 <?php
 namespace Donner;
 
-use Donner\Result\ControllerException;
+use Donner\Exception\DonnerException;
 
 /**
  * Class BasicRouter
@@ -16,7 +16,7 @@ class BasicRouter extends AbstractRouter {
       $result = $this->tryRun();
       $response = $result->getResponse();
       $http_code = $result->getHTTPCode();
-    } catch (ControllerException $exception) {
+    } catch (DonnerException $exception) {
       $response = $exception->getMessage();
       $http_code = $exception->getHTTPCode();
     }

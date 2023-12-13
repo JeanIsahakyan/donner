@@ -1,9 +1,9 @@
 <?php
 namespace Donner\Controller;
 
+use Donner\Exception\DonnerException;
 use Donner\Request\RequestParams;
-use Donner\Result\ControllerException;
-use Donner\Result\ControllerResponse;
+use Donner\Response\ResponseInterface;
 
 /**
  * Class AbstractController
@@ -13,6 +13,10 @@ use Donner\Result\ControllerResponse;
  */
 abstract class AbstractController implements ControllerInterface {
   protected RequestParams $request;
+  /**
+   * @var string[] $params
+   */
+  protected array $params = [];
 
   private function initRequest(): void {
     switch (self::ALLOWED_METHOD) {
@@ -35,7 +39,15 @@ abstract class AbstractController implements ControllerInterface {
     $this->initRequest();
   }
 
-  public function resolve($params): ControllerResponse {
-    throw new ControllerException(ControllerException::INVALID_REQUEST, 'Unknown request');
+  /**
+   * @param string[] $params
+   */
+  final public function setParams(array $params): static {
+    $this->params = $params;
+    return $this;
+  }
+
+  public function resolve(): ResponseInterface {
+    throw new DonnerException(DonnerException::INVALID_REQUEST, 'Unknown request');
   }
 }

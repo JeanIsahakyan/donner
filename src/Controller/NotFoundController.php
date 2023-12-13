@@ -1,8 +1,9 @@
 <?php
 namespace Donner\Controller;
 
+use Donner\Response\ResponseInterface;
 use Donner\Utils\HTTPCode;
-use Donner\Result\ControllerResponse;
+use Donner\Response\MixedResponse;
 
 /**
  * Controller NotFoundController
@@ -12,7 +13,7 @@ use Donner\Result\ControllerResponse;
  */
 class NotFoundController extends AbstractController {
 
-  public function resolve($params): ControllerResponse {
-    return new ControllerResponse('Not found', HTTPCode::NOT_FOUND);
+  public function resolve(): ResponseInterface {
+    return new MixedResponse('Not found', HTTPCode::NOT_FOUND);
   }
 }

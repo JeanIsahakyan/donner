@@ -1,16 +1,16 @@
 <?php
-namespace Donner\Result;
+namespace Donner\Exception;
 
 use Donner\Utils\HTTPCode;
 use Exception;
 
 /**
- * Class ControllerException
- * @package Donner\Result
+ * Class DonnerException
+ * @package Donner\Response
  *
  * @author Zhan Isaakian <jeanisahakyan@gmail.com>
  */
-class ControllerException extends Exception {
+class DonnerException extends Exception {
   public const INVALID_REQUEST = 0;
 
   private HTTPCode $http_code;

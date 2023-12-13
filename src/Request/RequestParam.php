@@ -2,7 +2,7 @@
 namespace Donner\Request;
 
 use Donner\Utils\HTTPCode;
-use Donner\Result\ControllerException;
+use Donner\Exception\DonnerException;
 
 /**
  * Class RequestParam
@@ -38,9 +38,9 @@ class RequestParam {
     return $this;
   }
 
-  public function required(string $message = self::ERROR_MESSAGE_REQUIRED, int $error_code = ControllerException::INVALID_REQUEST): self {
+  public function required(string $message = self::ERROR_MESSAGE_REQUIRED, int $error_code = DonnerException::INVALID_REQUEST): self {
     if ($this->value === null) {
-      throw new ControllerException($error_code, $this->replace($message, [
+      throw new DonnerException($error_code, $this->replace($message, [
         'param' => $this->param,
       ]), HTTPCode::BAD_REQUEST);
     }
@@ -48,39 +48,39 @@ class RequestParam {
     return $this;
   }
 
-  public function positive(string $message = self::ERROR_MESSAGE_POSITIVE, int $error_code = ControllerException::INVALID_REQUEST): int {
+  public function positive(string $message = self::ERROR_MESSAGE_POSITIVE, int $error_code = DonnerException::INVALID_REQUEST): int {
     $value = $this->int();
     if ($value >= 0) {
       return $value;
     }
     if ($this->is_required) {
-      throw new ControllerException($error_code, $this->replace($message, [
+      throw new DonnerException($error_code, $this->replace($message, [
         'param' => $this->param,
       ]), HTTPCode::BAD_REQUEST);
     }
     return (int)$this->default_value;
   }
 
-  public function int(string $message = self::ERROR_MESSAGE_EMPTY, int $error_code = ControllerException::INVALID_REQUEST): int {
+  public function int(string $message = self::ERROR_MESSAGE_EMPTY, int $error_code = DonnerException::INVALID_REQUEST): int {
     $value = $this->value;
     if ($value || $value === '0') {
       return (int)$value;
     }
     if ($this->is_required) {
-      throw new ControllerException($error_code, $this->replace($message, [
+      throw new DonnerException($error_code, $this->replace($message, [
         'param' => $this->param,
       ]), HTTPCode::BAD_REQUEST);
     }
     return (int)$this->default_value;
   }
 
-  public function string(string $message = self::ERROR_MESSAGE_EMPTY, int $error_code = ControllerException::INVALID_REQUEST): string {
+  public function string(string $message = self::ERROR_MESSAGE_EMPTY, int $error_code = DonnerException::INVALID_REQUEST): string {
     $value = $this->value;
     if ($value || $value === '0') {
       return $value;
     }
     if ($this->is_required) {
-      throw new ControllerException($error_code, $this->replace($message, [
+      throw new DonnerException($error_code, $this->replace($message, [
         'param' => $this->param,
       ]), HTTPCode::BAD_REQUEST);
     }
@@ -95,7 +95,7 @@ class RequestParam {
   /**
    * @return int[]
    */
-  public function positiveList(string $error_message = self::ERROR_MESSAGE_POSITIVE, int $error_code = ControllerException::INVALID_REQUEST): array {
+  public function positiveList(string $error_message = self::ERROR_MESSAGE_POSITIVE, int $error_code = DonnerException::INVALID_REQUEST): array {
     $values = explode(',', $this->value);
     $result = [];
     foreach ($values as $value) {
@@ -106,19 +106,19 @@ class RequestParam {
       $result[] = $value;
     }
     if (!$result && $this->is_required) {
-      throw new ControllerException($error_code, $this->replace($error_message, [
+      throw new DonnerException($error_code, $this->replace($error_message, [
         'param' => $this->param,
       ]), HTTPCode::BAD_REQUEST);
     }
     return $result;
   }
 
-  public function enum(array $enum, string $error_message = self::ERROR_MESSAGE_ENUM, int $error_code = ControllerException::INVALID_REQUEST): string {
+  public function enum(array $enum, string $error_message = self::ERROR_MESSAGE_ENUM, int $error_code = DonnerException::INVALID_REQUEST): string {
     if (in_array($this->value, $enum, true)) {
       return (string)$this->value;
     }
     if ($this->is_required) {
-      throw new ControllerException($error_code, $this->replace($error_message, [
+      throw new DonnerException($error_code, $this->replace($error_message, [
         'param' => $this->param,
         'enum' => implode(', ', $enum),
       ]), HTTPCode::BAD_REQUEST);

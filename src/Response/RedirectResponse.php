@@ -1,30 +1,33 @@
 <?php
-namespace Donner\Result;
+namespace Donner\Response;
 
+use Donner\Exception\DonnerException;
+use Donner\Response\Internal\AbstractResponseInternal;
 use Donner\Utils\HTTPCode;
 
 /**
- * Class ControllerException
- * @package Donner\Result
+ * Class RedirectResponse
+ * @package Donner\Response
  *
  * @author Zhan Isaakian <jeanisahakyan@gmail.com>
  */
-class ControllerRedirectResponse extends ControllerResponse {
+class RedirectResponse extends AbstractResponseInternal {
   private string $redirect_uri;
+  private array $params = [];
 
-  public function __construct(string $redirect_uri, array $response = [], $http_code = HTTPCode::FOUND) {
+  public function __construct(string $redirect_uri, array $params = [], $http_code = HTTPCode::FOUND) {
     $this->redirect_uri = $redirect_uri;
     if (!$redirect_uri) {
-      throw new ControllerException(ControllerException::INVALID_REQUEST, 'redirect_uri is invalid');
+      throw new DonnerException(DonnerException::INVALID_REQUEST, 'redirect_uri is invalid');
     }
-    parent::__construct($response, $http_code);
+    $this->params = $params;
+    $this->setHTTPCode($http_code);
   }
 
   public function getResponse(): string|array {
-    $response = parent::getResponse();
-    $redirect_uri = $this->buildRedirectURI($response);
+    $redirect_uri = $this->buildRedirectURI($this->params);
     if (!$redirect_uri) {
-      throw new ControllerException(ControllerException::INVALID_REQUEST, 'redirect_uri is invalid');
+      throw new DonnerException(DonnerException::INVALID_REQUEST, 'redirect_uri is invalid');
     }
     HTTPCode::set($this->getHTTPCode());
     header("Location: {$redirect_uri}");

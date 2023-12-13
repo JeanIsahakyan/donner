@@ -1,8 +1,8 @@
 <?php
 namespace Donner\Controller;
 
-use Donner\Result\ControllerException;
-use Donner\Result\ControllerResponse;
+use Donner\Exception\DonnerException;
+use Donner\Response\ResponseInterface;
 
 /**
  * Interface ControllerInterface
@@ -18,9 +18,8 @@ interface ControllerInterface {
   public const ALLOWED_METHOD = self::METHOD_ALL;
 
   /**
-   * @param string[] $params
-   * @throws ControllerException
-   * @return ControllerResponse
+   * @throws DonnerException
+   * @return ResponseInterface
    */
-  public function resolve(array $params): ControllerResponse;
+  public function resolve(): ResponseInterface;
 }

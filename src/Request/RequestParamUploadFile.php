@@ -1,8 +1,8 @@
 <?php
 namespace Donner\Request;
 
+use Donner\Exception\DonnerException;
 use Donner\Utils\HTTPCode;
-use Donner\Result\ControllerException;
 
 /**
  * Class RequestParamUploadFile
@@ -40,7 +40,7 @@ class RequestParamUploadFile {
     return str_replace($keys, $values, $text);
   }
 
-  public function required(string $message = self::ERROR_MESSAGE_REQUIRED, int $error_code = ControllerException::INVALID_REQUEST): self {
+  public function required(string $message = self::ERROR_MESSAGE_REQUIRED, int $error_code = DonnerException::INVALID_REQUEST): self {
     $value = $this->value;
     if (!is_array($value)) {
       $value = [];
@@ -49,19 +49,19 @@ class RequestParamUploadFile {
       if (array_key_exists($field, $value)) {
         continue;
       }
-      throw new ControllerException($error_code, $this->replace($message, [
+      throw new DonnerException($error_code, $this->replace($message, [
         'param' => $this->param,
       ]), HTTPCode::BAD_REQUEST);
     }
     return $this;
   }
 
-  public function maxSize(int $max_size = self::MAX_SIZE_DEFAULT, string $message = self::ERROR_MESSAGE_MAX_SIZE, int $error_code = ControllerException::INVALID_REQUEST): self {
+  public function maxSize(int $max_size = self::MAX_SIZE_DEFAULT, string $message = self::ERROR_MESSAGE_MAX_SIZE, int $error_code = DonnerException::INVALID_REQUEST): self {
     $size = (int)$this->value[self::FIELD_SIZE];
     if ($size > 0 && $size <= $max_size) {
       return $this;
     }
-    throw new ControllerException($error_code, $this->replace($message, [
+    throw new DonnerException($error_code, $this->replace($message, [
       'param' => $this->param,
     ]), HTTPCode::BAD_REQUEST);
   }
