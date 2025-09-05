@@ -1,172 +1,36 @@
-# Donner Documentation
+# Donner Framework
 
-**Donner** is a lightweight PHP framework designed to simplify web application development by providing tools for dynamic routing, request validation, structured responses, and file upload handling. It streamlines the process of building web applications and APIs by handling common tasks such as URI pattern matching, parameter validation, response formatting, and error handling, with support for PHP 8.1+ features like enums.
+[![PHP Version](https://img.shields.io/badge/php-%3E%3D8.1-blue.svg)](https://php.net)
+[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+[![Composer](https://img.shields.io/badge/composer-ji%2Fdonner-blue.svg)](https://packagist.org/packages/ji/donner)
 
----
+**Donner** is a lightweight, modern PHP framework designed for building web applications and APIs. It provides a clean, simple API for routing, request validation, response handling, and file uploads with support for PHP 8.1+ features.
 
-## What is Donner?
+## ✨ Features
 
-**Donner** is a minimal PHP framework that aids in developing web applications and APIs by providing:
-- **Dynamic Routing with Regex**: Maps HTTP requests to controllers using URI patterns with placeholders (e.g., `/user/{id}`).
-- **Request Validation**: Validates and sanitizes input parameters and file uploads with type-safe methods.
-- **Structured Responses**: Ensures consistent response formats, including JSON, redirects, and paginated data.
-- **Error Handling**: Simplifies error reporting with custom exceptions and HTTP status codes.
-- **File Upload Management**: Handles file uploads with validation for size, type, and automatic cleanup.
-- **Enum Support**: Utilizes PHP 8.1 enums for robust HTTP status code definitions.
+- 🚀 **Lightweight & Fast** - Minimal overhead with only essential dependencies
+- 🛡️ **Type Safety** - PHP 8.1+ enum support and type-safe validation
+- 🔧 **Developer Friendly** - Fluent API and intuitive controller structure
+- 📁 **File Handling** - Secure file upload validation and management
+- 🎯 **Dynamic Routing** - Regex-based URI patterns with parameter extraction
+- 📊 **Structured Responses** - Consistent JSON responses with pagination support
+- ⚡ **Modern PHP** - Built for PHP 8.1+ with enums and modern features
 
-### Purpose and Use Cases
+## 🚀 Quick Start
 
-Donner is ideal for:
-- Developers building lightweight web applications or APIs.
-- Projects requiring dynamic routing with regex-based URI patterns.
-- Applications needing robust input validation for query parameters and file uploads.
-- APIs that demand consistent response formats (e.g., JSON, paginated lists, redirects).
-- Projects leveraging PHP 8.1+ features like enums for type safety.
-- Small to medium-sized applications where simplicity and flexibility are key.
-
----
-
-## Getting Started with Donner
-
-### Installation via Composer
-
-Ensure your PHP version is **8.1** or higher and the `ext-json` extension is enabled.
-
-Install Donner via Composer by adding it to your `composer.json` or running:
+### Installation
 
 ```bash
 composer require ji/donner
 ```
 
-### Recommended Project Structure
+### Basic Example
 
-Organize your project as follows:
-
-```*
-project/
-├── composer.json
-├── vendor/
-│   └── autoload.php
-├── index.php
-└── src/
-    ├── Controllers/
-    │   ├── HomeController.php
-    │   ├── UserController.php
-    │   └── NotFoundController.php
-    ├── Responses/
-    │   └── CustomResponse.php
-    ├── Router.php
-    └── (Other application files)
-```
-
-### Creating the Router
-
-The router handles incoming requests and routes them to the appropriate controllers. Place it in `src/Router.php`.
-
-#### Example ```Router.php```:
-
-```php
-<?php
-// src/Router.php
-
-namespace App;
-
-use Donner\BasicRouter;
-use App\Controllers\HomeController;
-use App\Controllers\UserController;
-use App\Controllers\NotFoundController;
-
-class Router {
-    public function handleRequest(): void {
-        // Set headers
-        header('Content-Type: application/json; charset=UTF-8');
-
-        try {
-            // Create router and add controllers
-            $router = BasicRouter::create()
-                ->addController(new HomeController())
-                ->addController(new UserController())
-                ->setNotFoundController(new NotFoundController());
-
-            // Run the router
-            $router->run();
-        } catch (\Exception $exception) {
-            // Handle exceptions and output error response
-            http_response_code(500);
-            echo json_encode([
-                'error' => [
-                    'error_code' => $exception->getCode(),
-                    'error_message' => $exception->getMessage(),
-                ]
-            ]);
-        }
-    }
-}
-```
-
-#### Explanation:
-
--   **Headers**: Sets JSON content type for API responses.
-    
--   **Router Setup**: Instantiates BasicRouter, registers controllers, and sets a custom 404 handler.
-    
--   **Error Handling**: Catches exceptions and returns a structured error response.
-    
-
-Then, in your ```index.php```, instantiate and use the router:
-
-#### Example ```index.php```:
 ```php
 <?php
 require_once 'vendor/autoload.php';
 
-use App\Router;
-
-$router = new Router();
-$router->handleRequest();
-```
-### Creating a New Controller
-
-Controllers extend ```AbstractController``` and define routes using the ```URI``` constant. Each controller’s ```resolve``` method processes the request and returns a response.
-
-### Defining the Controller Class
-
-Create a new class in ```src/Controllers/```.
-
-#### Example:
-```php
-<?php
-// src/Controllers/UserController.php
-
-namespace App\Controllers;
-
-use Donner\Controller\AbstractController;
-use Donner\Response\MixedResponse;
-use Donner\Utils\HTTPCode;
-
-class UserController extends AbstractController {
-    public const URI = '/user/{id}';
-    public const ALLOWED_METHOD = self::METHOD_GET;
-
-    public function resolve(): \Donner\Response\ResponseInterface {
-        $userId = $this->params[0]; // Extracted from {id}
-        return new MixedResponse(['user_id' => $userId], HTTPCode::OK);
-    }
-}
-```
-### Implementing Controller Methods
-
-Define the ```resolve``` method to handle the request logic. The URI pattern (e.g., ```/user/{id}```) is matched using regex, and parameters are available in ```$this->params```.
-
-#### Controller: ```HomeController```
-
-#### Definition:
-```php
-<?php
-// src/Controllers/HomeController.php
-
-namespace App\Controllers;
-
+use Donner\BasicRouter;
 use Donner\Controller\AbstractController;
 use Donner\Response\MixedResponse;
 use Donner\Utils\HTTPCode;
@@ -176,96 +40,155 @@ class HomeController extends AbstractController {
     public const ALLOWED_METHOD = self::METHOD_GET;
 
     public function resolve(): \Donner\Response\ResponseInterface {
-        return new MixedResponse(['message' => 'Welcome to Donner!'], HTTPCode::OK);
+        return new MixedResponse([
+            'message' => 'Welcome to Donner!',
+            'version' => '1.0.0'
+        ], HTTPCode::OK);
     }
 }
-```
-#### Request Example:
 
-```http
-GET / HTTP/1.1
-Host: example.com
+BasicRouter::create()
+    ->addController(new HomeController())
+    ->run();
 ```
 
-#### Response Example:
-```json
-{
-    "message": "Welcome to Donner!"
-}
-```
-
-#### Controller: ```UserController```
-
-#### Definition:
+### Request Validation
 
 ```php
-<?php
-// src/Controllers/UserController.php
-
-namespace App\Controllers;
-
-use Donner\Controller\AbstractController;
-use Donner\Response\MixedResponse;
-use Donner\Utils\HTTPCode;
-use Donner\Exception\DonnerException;
-
 class UserController extends AbstractController {
     public const URI = '/user/{id}';
     public const ALLOWED_METHOD = self::METHOD_GET;
 
     public function resolve(): \Donner\Response\ResponseInterface {
         $userId = $this->params[0];
+        
+        // Validate user ID
         if (!is_numeric($userId)) {
-            throw new DonnerException(
-                DonnerException::INVALID_REQUEST,
-                'User ID must be numeric',
+            throw new \Donner\Exception\DonnerException(
+                \Donner\Exception\DonnerException::INVALID_REQUEST,
+                'Invalid user ID',
                 HTTPCode::BAD_REQUEST
             );
         }
+
         return new MixedResponse(['user_id' => (int)$userId], HTTPCode::OK);
     }
 }
 ```
 
-#### Request Example:
-```http
-GET /user/123 HTTP/1.1
-Host: example.com
-```
-#### Response Example:
-```json
-{
-    "user_id": 123
-}
-```
-#### Error Response Example:
-```http
-GET /user/abc HTTP/1.1
-Host: example.com
-```
-```json
-{
-    "error": {
-        "error_code": 0,
-        "error_message": "User ID must be numeric"
+### POST with Validation
+
+```php
+class CreateUserController extends AbstractController {
+    public const URI = '/users';
+    public const ALLOWED_METHOD = self::METHOD_POST;
+
+    public function resolve(): \Donner\Response\ResponseInterface {
+        $name = $this->request->get('name')
+            ->required('Name is required')
+            ->string('Name must be a string');
+
+        $email = $this->request->get('email')
+            ->required('Email is required')
+            ->string('Email must be a string');
+
+        $age = $this->request->get('age')
+            ->required('Age is required')
+            ->int('Age must be a number')
+            ->positive('Age must be positive');
+
+        // Process user creation...
+        return new \Donner\Response\SuccessResponse();
     }
 }
 ```
 
-#### Controller: ```UploadController```
+## 📚 Documentation
 
-#### Definition:
+### Getting Started
+- [Installation Guide](docs/installation.md) - Complete setup instructions
+- [Getting Started](docs/getting-started.md) - Quick start tutorial
+- [Examples & Tutorials](docs/examples.md) - Comprehensive examples
+
+### Reference
+- [API Reference](docs/api-reference.md) - Complete API documentation
+- [Architecture Overview](docs/architecture.md) - Framework architecture
+- [Best Practices](docs/best-practices.md) - Recommended patterns
+
+## 🏗️ Architecture
+
+Donner follows a clean, layered architecture:
+
+```
+Request → Router → Controller → Response
+   ↓        ↓         ↓          ↓
+Web Server → Pattern → Business → JSON
+           Matching   Logic     Output
+```
+
+### Core Components
+
+- **Router** - Handles request routing and parameter extraction
+- **Controllers** - Process business logic and return responses
+- **Request Validation** - Type-safe parameter validation
+- **Response System** - Structured response formatting
+- **File Upload** - Secure file handling with validation
+
+## 🎯 Use Cases
+
+Donner is perfect for:
+
+- **APIs** - RESTful APIs with JSON responses
+- **Web Applications** - Lightweight web apps
+- **Microservices** - Small, focused services
+- **Prototypes** - Rapid prototyping and development
+- **Learning** - Understanding modern PHP frameworks
+
+## 🔧 Requirements
+
+- PHP 8.1 or higher
+- `ext-json` extension
+- Composer (for installation)
+
+## 📦 Installation
+
+### Via Composer
+
+```bash
+composer require ji/donner
+```
+
+### Manual Installation
+
+1. Download the latest release
+2. Extract to your project directory
+3. Include the autoloader:
+
 ```php
-<?php
-// src/Controllers/UploadController.php
+require_once 'vendor/autoload.php';
+```
 
-namespace App\Controllers;
+## 🚀 Quick Examples
 
-use Donner\Controller\AbstractController;
-use Donner\Response\SuccessResponse;
-use Donner\Exception\DonnerException;
-use Donner\Utils\HTTPCode;
+### Simple API Endpoint
 
+```php
+class StatusController extends AbstractController {
+    public const URI = '/status';
+    public const ALLOWED_METHOD = self::METHOD_GET;
+
+    public function resolve(): \Donner\Response\ResponseInterface {
+        return new MixedResponse([
+            'status' => 'online',
+            'timestamp' => time()
+        ], HTTPCode::OK);
+    }
+}
+```
+
+### File Upload
+
+```php
 class UploadController extends AbstractController {
     public const URI = '/upload';
     public const ALLOWED_METHOD = self::METHOD_POST;
@@ -273,207 +196,65 @@ class UploadController extends AbstractController {
     public function resolve(): \Donner\Response\ResponseInterface {
         $file = $this->request->getFile('photo')
             ->required('Photo is required')
-            ->maxSize(2 * 1024 * 1024, 'Photo must be under 2MB')
+            ->maxSize(5 * 1024 * 1024, 'File must be under 5MB')
             ->file();
 
         if ($file && $file->isImage()) {
-            return new SuccessResponse();
+            return new \Donner\Response\SuccessResponse();
         }
-        throw new DonnerException(
-            DonnerException::INVALID_REQUEST,
-            'Invalid photo',
+
+        throw new \Donner\Exception\DonnerException(
+            \Donner\Exception\DonnerException::INVALID_REQUEST,
+            'Invalid image file',
             HTTPCode::BAD_REQUEST
         );
     }
 }
 ```
 
-#### Request Example:
-```http
-POST /upload HTTP/1.1
-Host: example.com
-Content-Type: multipart/form-data; boundary=----WebKitFormBoundary
+### Paginated Response
 
-------WebKitFormBoundary
-Content-Disposition: form-data; name="photo"; filename="image.jpg"
-Content-Type: image/jpeg
-
-(binary image data)
-------WebKitFormBoundary--
-```
-
-#### Response Example:
-```json
-{
-    "success": true
-}
-```
-
-## Creating a New Response
-
-Responses extend ```AbstractResponse``` and define the structure of data returned to the client. Public properties are automatically serialized to JSON.
-
-#### Example:
 ```php
-<?php
-// src/Responses/UserResponse.php
-
-namespace App\Responses;
-
-use Donner\Response\AbstractResponse;
-use Donner\Utils\HTTPCode;
-
-class UserResponse extends AbstractResponse {
-    public int $id;
-    public string $name;
-    public string $status;
-
-    public function __construct(int $id, string $name, string $status) {
-        parent::__construct(HTTPCode::OK);
-        $this->id = $id;
-        $this->name = $name;
-        $this->status = $status;
-    }
-
-    public static function create(int $id, string $name, string $status): self {
-        return new self($id, $name, $status);
-    }
-}
-```
-#### Usage in Controller:
-```php
-<?php
-// src/Controllers/UserResponseController.php
-
-namespace App\Controllers;
-
-use Donner\Controller\AbstractController;
-use Donner\Utils\HTTPCode;
-use App\Responses\UserResponse;
-
-class UserResponseController extends AbstractController {
-    public const URI = '/user-response/{id}';
+class UsersController extends AbstractController {
+    public const URI = '/users';
     public const ALLOWED_METHOD = self::METHOD_GET;
 
     public function resolve(): \Donner\Response\ResponseInterface {
-        $userId = $this->params[0];
-        return UserResponse::create((int)$userId, 'Jane Doe', 'active');
-    }
-}
-```
-#### Request Example:
-```http
-GET /user-response/123 HTTP/1.1
-Host: example.com
-```
-#### Response Example:
-```json
-{
-    "id": 123,
-    "name": "Jane Doe",
-    "status": "active"
-}
-```
-## Using Enums
+        $page = $this->request->get('page')->defaultValue(1)->int();
+        $limit = $this->request->get('limit')->defaultValue(10)->int()->positive();
 
-Enums define a set of named constants, used in Donner for HTTP status codes via the ```HTTPCode``` enum.
+        $users = $this->getUsers($page, $limit);
+        $totalCount = $this->getTotalCount();
 
-### Defining an Enum
-#### Example:
-```php
-<?php
-// src/Enums/UserStatus.php
-
-namespace App\Enums;
-
-enum UserStatus: string {
-    case ACTIVE = 'active';
-    case INACTIVE = 'inactive';
-    case BANNED = 'banned';
-}
-```
-
-### Using Enums in Controllers
-#### Example:
-```php
-<?php
-// src/Controllers/StatusController.php
-
-namespace App\Controllers;
-
-use Donner\Controller\AbstractController;
-use Donner\Response\MixedResponse;
-use Donner\Utils\HTTPCode;
-use App\Enums\UserStatus;
-use Donner\Exception\DonnerException;
-
-class StatusController extends AbstractController {
-    public const URI = '/status/{id}';
-    public const ALLOWED_METHOD = self::METHOD_POST;
-
-    public function resolve(): \Donner\Response\ResponseInterface {
-        $userId = $this->params[0];
-        $status = $this->request->get('status')
-            ->enum(
-                array_map(fn($case) => $case->value, UserStatus::cases()),
-                'Invalid status'
-            );
-        return new MixedResponse([
-            'user_id' => $userId,
-            'status' => $status
-        ], HTTPCode::OK);
-    }
-}
-```
-#### Request Example:
-```http
-POST /status/123 HTTP/1.1
-Host: example.com
-Content-Type: application/x-www-form-urlencoded
-
-status=active
-```
-#### Response Example:
-```json
-{
-    "user_id": "123",
-    "status": "active"
-}
-```
-## Handling Requests
-Requests are handled by ```BasicRouter```, which matches the request URI and HTTP method to a controller’s ```resolve``` method.
-##### Example in Router:
-```php
-$router = BasicRouter::create()
-    ->addController(new UserController())
-    ->run();
-```
-## Error Handling
-### Throwing Errors
-Use ```DonnerException``` to throw errors with custom codes, messages, and HTTP status codes.
-#### Example:
-```php
-if (!is_numeric($userId)) {
-    throw new DonnerException(
-        DonnerException::INVALID_REQUEST,
-        'User ID must be numeric',
-        HTTPCode::BAD_REQUEST
-    );
-}
-```
-#### Common Error Codes:
- - ```DonnerException::INVALID_REQUEST``` (0): Generic invalid request error.
-
-### Handling Errors in the Router
-Errors are caught in ```Router.php``` and returned as structured JSON responses.
-
-#### Example Error Response:
-```json
-{
-    "error": {
-        "error_code": 0,
-        "error_message": "User ID must be numeric"
+        return (new \Donner\Response\ItemsResponse())
+            ->setItems($users)
+            ->setTotalCount($totalCount)
+            ->setNextCursor($page * $limit < $totalCount ? $page + 1 : null)
+            ->setPreviousCursor($page > 1 ? $page - 1 : null);
     }
 }
 ```
 
+## 🤝 Contributing
+
+We welcome contributions! Please see our [Contributing Guide](docs/contributing.md) for details.
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgments
+
+- Built with modern PHP 8.1+ features
+- Inspired by clean, simple API design
+- Community feedback and contributions
+
+## 📞 Support
+
+- **Documentation**: [docs/](docs/)
+- **Issues**: [GitHub Issues](https://github.com/your-repo/donner/issues)
+- **Email**: jeanisahakyan@gmail.com
+
+---
+
+**Made with ❤️ for the PHP community**
